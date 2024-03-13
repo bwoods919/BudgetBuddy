@@ -1,152 +1,153 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dashboard',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const DashboardPage(),
+      home: DashboardPage(),
     );
   }
 }
 
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+class DashboardPage extends StatefulWidget {
+  @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize pages here to avoid context-related issues
+    _pages.addAll([
+      SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 20),
+            BalanceCard(),
+            SizedBox(height: 30),
+            SavingsOverviewCard(),
+            SizedBox(height: 16),
+            FinancialInsightsChart(),
+          ],
+        ),
+      ),
+      Center(child: Text('Home')),
+      Center(child: Text('Settings')),
+    ]);
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text('Dashboard'),
       ),
-      body: ListView(
-        children: [
-          _buildBalanceCard(),
-          _buildSavingsOverview(),
-          _buildFinancialInsights(),
-          _buildBudgetSection(),
-          _buildTransactionList(),
-        ],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Wallet',
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
+}
 
-  Widget _buildBalanceCard() {
+class BalanceCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text('Current Balance', style: TextStyle(fontWeight: FontWeight.bold)),
-            const Text('USD 10,000.00', style: TextStyle(fontSize: 24)),
-            Container(height: 150, color: Colors.grey[300]), // Placeholder for chart
-          ],
-        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Text('BalanceCard Placeholder'),
       ),
     );
   }
+}
 
-  Widget _buildSavingsOverview() {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text('Savings Overview', style: TextStyle(fontWeight: FontWeight.bold)),
-            Container(height: 150, color: Colors.grey[300]), // Placeholder for chart
-          ],
-        ),
+class SavingsOverviewCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(8.0),
       ),
+      child: Text('SavingsOverview Placeholder'),
     );
   }
+}
 
-  Widget _buildFinancialInsights() {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text('Financial Insights', style: TextStyle(fontWeight: FontWeight.bold)),
-            Container(height: 200, color: Colors.grey[300]), // Placeholder for chart
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBudgetSection() {
-    return const Card(
-      margin: EdgeInsets.all(8),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text('Budget', style: TextStyle(fontWeight: FontWeight.bold)),
-            ListTile(
-              title: Text('Travel Plans'),
-              trailing: Text('62% Progress'),
+class FinancialInsightsChart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1.7,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: 20,
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBgColor: Colors.blueGrey,
             ),
-            ListTile(
-              title: Text('Spending'),
-              trailing: Text('60% Grocery'),
+            touchCallback: (FlTouchEvent event, BarTouchResponse? touchResponse) {
+              // Implement your touch callback logic here
+            },
+            enabled: true,
+          ),
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                getTitlesWidget: (value, meta) {
+                  return Text(value.toString());
+                },
+                showTitles: true,
+              ),
             ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          barGroups: [
+            BarChartGroupData(x: 0, barRods: [
+              BarChartRodData(
+                toY: 8,
+                color: Colors.lightBlueAccent,
+              ),
+              // Define more rods as needed
+            ]),
+            // Define more groups as needed
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTransactionList() {
-    return const Card(
-      margin: EdgeInsets.all(8),
-      child: Column(
-        children: [
-          ListTile(
-            title: Text('Transactions', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          ListTile(
-            leading: Icon(Icons.fastfood),
-            title: Text('Local Eats'),
-            subtitle: Text('Dining Out'),
-            trailing: Text('-18.96'),
-          ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home Essentials'),
-            subtitle: Text('Household'),
-            trailing: Text('-92.50'),
-          ),
-          // More transactions can be added here
-        ],
       ),
     );
   }
